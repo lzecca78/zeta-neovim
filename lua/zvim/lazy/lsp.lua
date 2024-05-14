@@ -11,6 +11,8 @@ return {
         "L3MON4D3/LuaSnip",
         "saadparwaiz1/cmp_luasnip",
         "j-hui/fidget.nvim",
+        "b0o/SchemaStore.nvim",
+
     },
 
     config = function()
@@ -22,13 +24,18 @@ return {
             vim.lsp.protocol.make_client_capabilities(),
             cmp_lsp.default_capabilities())
 
+
         require("fidget").setup({})
         require("mason").setup()
         require("mason-lspconfig").setup({
             ensure_installed = {
+                "bashls",
                 "lua_ls",
                 "rust_analyzer",
-                "pylyzer",
+                "pyright",
+                "sqlls",
+                "yamlls",
+
             },
             handlers = {
                 function(server_name) -- default handler (optional)
@@ -51,6 +58,23 @@ return {
                             }
                         }
                     }
+                end,
+
+                ["yamlls"] = function()
+                    require("lspconfig").yamlls.setup({
+                        settings = {
+                            yaml = {
+                                schemaStore = {
+                                    -- You must disable built-in schemaStore support if you want to use
+                                    -- this plugin and its advanced options like `ignore`.
+                                    enable = false,
+                                    -- Avoid TypeError: Cannot read properties of undefined (reading 'length')
+                                    url = "",
+                                },
+                                schemas = require("schemastore").yaml.schemas(),
+                            },
+                        },
+                    })
                 end,
             }
         })
